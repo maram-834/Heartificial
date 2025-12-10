@@ -13,7 +13,11 @@ app.secret_key = 'your-secret-key-change-this-in-production'
 model = joblib.load("heart_disease_rf_model.pkl")
 
 # Simple user storage (in production, use a real database)
-USERS_FILE = '/tmp/users.json'
+USERS_FILE = os.path.join(os.getcwd(), 'data', 'users.json')
+
+# Ensure the directory exists
+if not os.path.exists(os.path.dirname(USERS_FILE)):
+    os.makedirs(os.path.dirname(USERS_FILE))
 
 def load_users():
     if os.path.exists(USERS_FILE):
