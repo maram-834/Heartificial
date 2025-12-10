@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HEARTIFICIAL - Login</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+        .heart-bg { position: fixed; width: 100%; height: 100%; top: 0; left: 0; pointer-events: none; z-index: 0; }
+        .heart { position: absolute; font-size: 30px; opacity: 0.1; animation: float 20s infinite; color: #ff6b9d; }
+        @keyframes float { 0%,100%{transform:translateY(0) rotate(0deg);}50%{transform:translateY(-50px) rotate(180deg);} }
+        
+        .container {
+            position: relative;
+            z-index: 1;
+            max-width: 450px;
+            width: 100%;
+        }
+        
+        .container::-webkit-scrollbar {
+            display: none;
+        }
+        
+        .container {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            animation: fadeInDown 1s ease;
+        }
+        
+        h1 {
+            font-family: 'Fredoka One', cursive;
+            font-weight: 300;
+            text-transform: uppercase;
+            color: white;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+        
+        .subtitle {
+            color: #fce4ec;
+            font-size: 1.1em;
+            font-weight: 300;
+        }
+        
+        .auth-card {
+            background: rgba(255,255,255,0.95);
+            border-radius: 30px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            backdrop-filter: blur(10px);
+            animation: fadeInUp 1s ease;
+        }
+        
+        .form-tabs {
+            display: flex;
+            margin-bottom: 30px;
+            border-radius: 15px;
+            overflow: hidden;
+            background: #f8bbd0;
+        }
+        
+        .tab {
+            flex: 1;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            font-weight: 600;
+            color: #d81b60;
+            transition: all 0.3s ease;
+            border: none;
+            background: transparent;
+            font-size: 1em;
+        }
+        
+        .tab.active {
+            background: #ec407a;
+            color: white;
+        }
+        
+        .form-container {
+            display: none;
+        }
+        
+        .form-container.active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            color: #d81b60;
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 0.95em;
+        }
+        
+        input[type="text"],
+        input[type="email"],
+        input[type="password"] {
+            width: 100%;
+            padding: 14px;
+            border: 2px solid #f8bbd0;
+            border-radius: 15px;
+            font-size: 1em;
+            transition: all 0.3s ease;
+            background: white;
+            font-family: 'Poppins', sans-serif;
+        }
+        
+        input:focus {
+            outline: none;
+            border-color: #ec407a;
+            box-shadow: 0 0 0 3px rgba(236,64,122,0.1);
+            transform: translateY(-2px);
+        }
+        
+        .submit-btn {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #ec407a 0%, #d81b60 100%);
+            color: white;
+            border: none;
+            border-radius: 15px;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 20px rgba(236,64,122,0.3);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 10px;
+        }
+        
+        .submit-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 30px rgba(236,64,122,0.4);
+        }
+        
+        .submit-btn:active {
+            transform: translateY(-1px);
+        }
+        
+        .error-message {
+            color: #d32f2f;
+            background: #ffcdd2;
+            padding: 12px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            display: none;
+            text-align: center;
+            font-size: 0.9em;
+        }
+        
+        .success-message {
+            color: #388e3c;
+            background: #c8e6c9;
+            padding: 12px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            display: none;
+            text-align: center;
+            font-size: 0.9em;
+        }
+        
+        @keyframes fadeInDown { from {opacity:0; transform:translateY(-50px);} to {opacity:1; transform:translateY(0);} }
+        @keyframes fadeInUp { from {opacity:0; transform:translateY(50px);} to {opacity:1; transform:translateY(0);} }
+        @keyframes fadeIn { from {opacity:0;} to {opacity:1;} }
+        
+        @media(max-width:768px) {
+            h1 { font-size: 2em; }
+            .auth-card { padding: 30px 20px; }
+        }
+        #modeToggle { 
+            position: fixed; 
+            top: 20px; 
+            right: 20px; 
+            padding: 10px 20px; 
+            border: none; 
+            border-radius: 10px; 
+            cursor: pointer; 
+            background: #ec407a; 
+            color: white; 
+            z-index: 10; 
+            transition: all 0.3s ease;
+            font-family: 'Poppins', sans-serif;
+            font-weight: 600;
+        }
+        #modeToggle:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(236, 64, 122, 0.4);
+        }
+        body.dark-mode {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%) !important;
+        }
+        body.dark-mode .auth-card {
+            background: rgba(30, 30, 30, 0.95) !important;
+            color: #f0f0f0 !important;
+        }
+        body.dark-mode input {
+            background: #1e1e1e !important;
+            color: white !important;
+            border-color: #555 !important;
+        }
+        body.dark-mode label {
+            color: #ff69b4 !important;
+        }
+        body.dark-mode .tab {
+            color: #ff69b4 !important;
+        }
+        body.dark-mode .tab.active {
+            background: #ec407a !important;
+            color: white !important;
+        }
+        body.dark-mode .form-tabs {
+            background: #2a2a2a !important;
+        }
+        body.dark-mode h1 {
+            color: #ffd6e9 !important;
+        }
+        body.dark-mode .subtitle {
+            color: #ffb6c1 !important;
+        }
+        
+        footer { 
+            text-align: center; 
+            margin-top: 30px; 
+            color: white; 
+            font-size: 0.9em; 
+            position: relative;
+            z-index: 1;
+        }
+        
+        .about-us {
+            margin-top: 20px;
+            text-align: center;
+            color: white;
+        }
+        
+        .about-us h3 {
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+        
+        .about-us a {
+            color: #ffd6e9;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+        
+        .about-us a:hover {
+            color: #ffb6c1;
+        }
+        
+        body.dark-mode footer {
+            color: #ffd6e9 !important;
+        }
+        
+        body.dark-mode .about-us {
+            color: #ffd6e9 !important;
+        }
+    </style>
+</head>
+<body>
+    <div class="heart-bg"></div>
+    <button id="modeToggle">Dark Mode</button>
+    
+    <div class="container">
+        <div class="header">
+            <h1>ﮩ٨ـﮩﮩ٨ـHE<span style="color:#ffb6c1;">ARTIFICIAL</span>ﮩ٨ـﮩﮩ٨ـ</h1>
+            <p class="subtitle">"Where your heart meets hope through AI"</p>
+        </div>
+        
+        <div class="auth-card">
+            <div class="form-tabs">
+                <button class="tab active" onclick="switchTab('login')">Login</button>
+                <button class="tab" onclick="switchTab('signup')">Sign Up</button>
+            </div>
+            
+            <div id="error-message" class="error-message"></div>
+            <div id="success-message" class="success-message"></div>
+            
+            <!-- Login Form -->
+            <div id="login-form" class="form-container active">
+                <form onsubmit="handleLogin(event)">
+                    <div class="form-group">
+                        <label for="login-email">Email Address</label>
+                        <input type="email" id="login-email" required placeholder="Enter your email">
+                    </div>
+                    <div class="form-group">
+                        <label for="login-password">Password</label>
+                        <input type="password" id="login-password" required placeholder="Enter your password">
+                    </div>
+                    <button type="submit" class="submit-btn">💗 Login</button>
+                </form>
+            </div>
+            
+            <!-- Signup Form -->
+            <div id="signup-form" class="form-container">
+                <form onsubmit="handleSignup(event)">
+                    <div class="form-group">
+                        <label for="signup-name">Full Name</label>
+                        <input type="text" id="signup-name" required placeholder="Enter your full name">
+                    </div>
+                    <div class="form-group">
+                        <label for="signup-email">Email Address</label>
+                        <input type="email" id="signup-email" required placeholder="Enter your email">
+                    </div>
+                    <div class="form-group">
+                        <label for="signup-password">Password</label>
+                        <input type="password" id="signup-password" required placeholder="Create a password" minlength="6">
+                    </div>
+                    <div class="form-group">
+                        <label for="signup-confirm">Confirm Password</label>
+                        <input type="password" id="signup-confirm" required placeholder="Confirm your password" minlength="6">
+                    </div>
+                    <button type="submit" class="submit-btn">💗 Create Account</button>
+                </form>
+            </div>
+        </div>
+        
+        <footer>
+            <p>NOTE: This is an AI-based prediction tool. Always consult with healthcare professionals for medical advice.</p>
+            <p style="margin-top:10px;">© 2025 HEARTIFICIAL | Powered by Machine Learning</p>
+            <div class="about-us">
+                <h3>Contact Us</h3>
+                <p><a href="mailto:rrs56@mail.aub.edu">rrs56@mail.aub.edu</a></p>
+                <p><a href="mailto:rie24@mail.aub.edu">rie24@mail.aub.edu</a></p>
+                <p><a href="mailto:mis35@mail.aub.edu">mis35@mail.aub.edu</a></p>
+                <p><a href="mailto:raz30@mail.aub.edu">raz30@mail.aub.edu</a></p>
+                <p><a href="mailto:arf10@mail.aub.edu">arf10@mail.aub.edu</a></p>
+            </div>
+        </footer>
+    </div>
+    
+    <script>
+        function createHearts() {
+            const container = document.querySelector('.heart-bg');
+            for (let i = 0; i < 15; i++) {
+                const heart = document.createElement('div');
+                heart.className = 'heart';
+                heart.innerHTML = '❤️';
+                heart.style.left = Math.random() * 100 + '%';
+                heart.style.top = Math.random() * 100 + '%';
+                heart.style.animationDelay = Math.random() * 5 + 's';
+                heart.style.fontSize = (Math.random() * 30 + 20) + 'px';
+                container.appendChild(heart);
+            }
+        }
+        createHearts();
+
+        // Dark mode toggle
+        const modeToggle = document.getElementById('modeToggle');
+        modeToggle.addEventListener('click', () => {
+            document.body.classList.toggle('dark-mode');
+            modeToggle.innerText = document.body.classList.contains('dark-mode') ? 'Light Mode' : 'Dark Mode';
+        });
+        
+        function switchTab(tab) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.form-container').forEach(f => f.classList.remove('active'));
+            
+            if (tab === 'login') {
+                document.querySelectorAll('.tab')[0].classList.add('active');
+                document.getElementById('login-form').classList.add('active');
+            } else {
+                document.querySelectorAll('.tab')[1].classList.add('active');
+                document.getElementById('signup-form').classList.add('active');
+            }
+            
+            hideMessages();
+        }
+        
+        function showError(message) {
+            const errorEl = document.getElementById('error-message');
+            errorEl.textContent = message;
+            errorEl.style.display = 'block';
+            document.getElementById('success-message').style.display = 'none';
+        }
+        
+        function showSuccess(message) {
+            const successEl = document.getElementById('success-message');
+            successEl.textContent = message;
+            successEl.style.display = 'block';
+            document.getElementById('error-message').style.display = 'none';
+        }
+        
+        function hideMessages() {
+            document.getElementById('error-message').style.display = 'none';
+            document.getElementById('success-message').style.display = 'none';
+        }
+        
+        async function handleLogin(e) {
+            e.preventDefault();
+            hideMessages();
+            
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+            
+            try {
+                const response = await fetch('/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    showSuccess('Login successful! Redirecting...');
+                    setTimeout(() => {
+                        window.location.href = '/home';
+                    }, 1000);
+                } else {
+                    showError(result.message || 'Invalid email or password');
+                }
+            } catch (error) {
+                showError('An error occurred. Please try again.');
+            }
+        }
+        
+        async function handleSignup(e) {
+            e.preventDefault();
+            hideMessages();
+            
+            const name = document.getElementById('signup-name').value;
+            const email = document.getElementById('signup-email').value;
+            const password = document.getElementById('signup-password').value;
+            const confirm = document.getElementById('signup-confirm').value;
+            
+            if (password !== confirm) {
+                showError('Passwords do not match!');
+                return;
+            }
+            
+            if (password.length < 6) {
+                showError('Password must be at least 6 characters long!');
+                return;
+            }
+            
+            try {
+                const response = await fetch('/signup', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name, email, password })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    showSuccess('Account created successfully! Redirecting...');
+                    setTimeout(() => {
+                        window.location.href = '/home';
+                    }, 1000);
+                } else {
+                    showError(result.message || 'Account creation failed');
+                }
+            } catch (error) {
+                showError('An error occurred. Please try again.');
+            }
+        }
+    </script>
+</body>
+</html>

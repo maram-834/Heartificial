@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Heart Disease Prediction System</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+            min-height: 100vh;
+            padding: 20px;
+            position: relative;
+            overflow-x: hidden;
+            transition: all 0.3s ease;
+        }
+        body.dark-mode {
+            background: #121212 !important;
+            color: #f0f0f0 !important;
+        }
+        body.dark-mode input,
+        body.dark-mode select {
+            background: #1e1e1e !important;
+            color: white !important;
+            border-color: #555 !important;
+        }
+        body.dark-mode .main-card {
+            background: rgba(30, 30, 30, 0.95) !important;
+        }
+        .heart-bg { position: fixed; width: 100%; height: 100%; top: 0; left: 0; pointer-events: none; z-index: 0; }
+        .heart { position: absolute; font-size: 30px; opacity: 0.1; animation: float 20s infinite; color: #ff6b9d; }
+        @keyframes float { 0%,100%{transform:translateY(0) rotate(0deg);}50%{transform:translateY(-50px) rotate(180deg);} }
+        .container { max-width:1200px; margin:0 auto; position:relative; z-index:1; }
+        header { text-align:center; margin-bottom:40px; animation: fadeInDown 1s ease; }
+        h1 { font-family: 'Fredoka One', cursive; font-weight:300; text-transform:uppercase; color:white; font-size:3em; margin-bottom:10px; text-shadow:2px 2px 4px rgba(0,0,0,0.2);}
+        .subtitle { color:#fce4ec; font-size:1.2em; font-weight:300; }
+        .main-card { background: rgba(255,255,255,0.95); border-radius:30px; padding:40px; box-shadow:0 20px 60px rgba(0,0,0,0.3); backdrop-filter: blur(10px); animation: fadeInUp 1s ease; }
+        .form-grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap:25px; margin-bottom:30px; }
+        .form-group { animation: slideIn 0.5s ease; }
+        label { display:block; color:#d81b60; font-weight:600; margin-bottom:8px; font-size:0.95em; }
+        input[type="number"], select { width:100%; padding:14px; border:2px solid #f8bbd0; border-radius:15px; font-size:1em; transition: all 0.3s ease; background:white; font-family: 'Poppins', sans-serif; }
+        input[type="number"]:focus, select:focus { outline:none; border-color:#ec407a; box-shadow:0 0 0 3px rgba(236,64,122,0.1); transform:translateY(-2px); }
+        .predict-btn { width:100%; padding:18px; background:linear-gradient(135deg, #ec407a 0%, #d81b60 100%); color:white; border:none; border-radius:15px; font-size:1.2em; font-weight:600; cursor:pointer; transition: all 0.3s ease; box-shadow:0 8px 20px rgba(236,64,122,0.3); text-transform:uppercase; letter-spacing:1px; }
+        .predict-btn:hover { transform: translateY(-3px); box-shadow:0 12px 30px rgba(236,64,122,0.4);}
+        .predict-btn:active { transform: translateY(-1px);}
+        .predict-btn:disabled { opacity:0.6; cursor:not-allowed; }
+        .loading { display:none; text-align:center; margin:20px 0; }
+        .spinner { border:4px solid #f8bbd0; border-top:4px solid #ec407a; border-radius:50%; width:50px; height:50px; animation: spin 1s linear infinite; margin:0 auto; }
+        @keyframes spin {0%{transform:rotate(0deg);}100%{transform:rotate(360deg);} }
+        .result { display:none; margin-top:30px; padding:30px; border-radius:20px; animation:fadeIn 0.5s ease; }
+        .result h2 { font-size:2em; margin-bottom:15px; text-align:center; color:#ff69b4; }
+        .probability-bars { margin:20px 0; }
+        .prob-item { margin:15px 0; }
+        .prob-label { display:flex; justify-content:space-between; margin-bottom:8px; font-weight:600; }
+        .prob-bar { height:30px; background:rgba(255,192,203,0.3); border-radius:15px; overflow:hidden; }
+        .prob-fill { height:100%; background:#ff69b4; border-radius:15px; transition: width 1s ease; display:flex; align-items:center; justify-content:flex-end; padding-right:10px; font-weight:600; color:white; }
+        .message { margin-top:20px; padding:20px; background:rgba(255,192,203,0.2); border-radius:15px; font-size:1.1em; line-height:1.6; }
+        .action-buttons { display:flex; gap:15px; margin-top:20px; flex-wrap:wrap; }
+        .reset-btn, .download-btn { flex:1; min-width:200px; padding:12px 30px; color:white; border:none; border-radius:15px; font-weight:600; cursor:pointer; transition: all 0.3s ease; font-size:1em; }
+        .reset-btn { background:#ff69b4; }
+        .reset-btn:hover { opacity:0.9; }
+        .download-btn { background:linear-gradient(135deg, #4caf50 0%, #388e3c 100%); box-shadow:0 5px 15px rgba(76,175,80,0.3); }
+        .download-btn:hover { transform:translateY(-2px); box-shadow:0 8px 20px rgba(76,175,80,0.4); }
+        @keyframes fadeInDown { from {opacity:0; transform:translateY(-50px);} to {opacity:1; transform:translateY(0);} }
+        @keyframes fadeInUp { from {opacity:0; transform:translateY(50px);} to {opacity:1; transform:translateY(0);} }
+        @keyframes fadeIn { from {opacity:0;} to {opacity:1;} }
+        @keyframes slideIn { from {opacity:0; transform:translateX(-20px);} to {opacity:1; transform:translateX(0);} }
+        footer { text-align:center; margin-top:40px; color:white; font-size:0.9em; }
+        @media(max-width:768px) { h1 { font-size:2em; } .form-grid { grid-template-columns:1fr;} .main-card{padding:25px;} .action-buttons{flex-direction:column;} .reset-btn, .download-btn{min-width:100%;} }
+        #modeToggle { position:fixed; top:20px; right:20px; padding:10px 20px; border:none; border-radius:10px; cursor:pointer; background:#ec407a; color:white; z-index:10; transition: all 0.3s ease;}
+        #logoutBtn { position:fixed; top:20px; left:20px; padding:10px 20px; border:none; border-radius:10px; cursor:pointer; background:#ec407a; color:white; z-index:10; transition: all 0.3s ease;}
+    </style>
+</head>
+<body>
+    <div class="heart-bg"></div>
+    <button id="modeToggle">Dark Mode</button>
+    <button id="logoutBtn" onclick="logout()">Logout</button>
+
+    <div class="container">
+        <header>
+            <h1>ﮩ٨ـﮩﮩ٨ـHE<span style="color:#ffb6c1;">ARTIFICIAL</span>ﮩ٨ـﮩﮩ٨ـ</h1>
+            <p class="subtitle">"Where your heart meets hope through AI"</p>
+        </header>
+
+        <div class="main-card">
+            <form id="predictionForm">
+                <div class="form-grid" id="formGrid"></div>
+                <button type="submit" class="predict-btn" id="predictBtn">🩺 Analyze My Heart Health</button>
+            </form>
+
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                <p style="margin-top: 15px; color: #666;">Analyzing your data...</p>
+            </div>
+
+            <div class="result" id="result">
+                <h2 id="resultTitle"></h2>
+                <div class="probability-bars">
+                    <div class="prob-item">
+                        <div class="prob-label">
+                            <span>Low Risk</span>
+                            <span id="noDiseasePct">0%</span>
+                        </div>
+                        <div class="prob-bar">
+                            <div class="prob-fill" id="noDiseaseBar" style="width:0%;"></div>
+                        </div>
+                    </div>
+                    <div class="prob-item">
+                        <div class="prob-label">
+                            <span>High Risk</span>
+                            <span id="diseasePct">0%</span>
+                        </div>
+                        <div class="prob-bar">
+                            <div class="prob-fill" id="diseaseBar" style="width:0%;"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="message" id="message"></div>
+                <div class="action-buttons">
+                    <button class="reset-btn" onclick="resetForm()">Perform Another Analysis</button>
+                    <button class="download-btn" onclick="downloadTXT()">📄 Download Report (TXT)</button>
+                </div>
+            </div>
+        </div>
+
+        <footer>
+            <p>NOTE: This is an AI-based prediction tool. Always consult with healthcare professionals for medical advice.</p>
+            <p style="margin-top:10px;">© 2025 HEARTIFICIAL | Powered by Machine Learning</p>
+            <div class="about-us" style="margin-top:20px; text-align:center; color:white;">
+                <h3 style="font-weight:600;">Contact Us</h3>
+                <p><a href="mailto:rrs56@mail.aub.edu" style="color:#ffd6e9;">rrs56@mail.aub.edu</a></p>
+                <p><a href="mailto:rie24@mail.aub.edu" style="color:#ffd6e9;">rie24@mail.aub.edu</a></p>
+                <p><a href="mailto:mis35@mail.aub.edu" style="color:#ffd6e9;">mis35@mail.aub.edu</a></p>
+                <p><a href="mailto:raz30@mail.aub.edu" style="color:#ffd6e9;">raz30@mail.aub.edu</a></p>
+                <p><a href="mailto:arf10@mail.aub.edu" style="color:#ffd6e9;">arf10@mail.aub.edu</a></p>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        let currentResult = null;
+
+        function logout() {
+            window.location.href = '/logout';
+        }
+
+        function createHearts() {
+            const container = document.querySelector('.heart-bg');
+            for (let i = 0; i < 15; i++) {
+                const heart = document.createElement('div');
+                heart.className = 'heart';
+                heart.innerHTML = '❤️';
+                heart.style.left = Math.random() * 100 + '%';
+                heart.style.top = Math.random() * 100 + '%';
+                heart.style.animationDelay = Math.random() * 5 + 's';
+                heart.style.fontSize = (Math.random() * 30 + 20) + 'px';
+                container.appendChild(heart);
+            }
+        }
+        createHearts();
+
+        const modeToggle = document.getElementById('modeToggle');
+        modeToggle.addEventListener('click', () => {
+            document.body.classList.toggle('dark-mode');
+            modeToggle.innerText = document.body.classList.contains('dark-mode') ? 'Light Mode' : 'Dark Mode';
+        });
+
+        function resetForm() {
+            document.getElementById('predictionForm').style.display = 'block';
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('result').style.display = 'none';
+            document.getElementById('predictionForm').reset();
+            document.getElementById('noDiseaseBar').style.width = '0%';
+            document.getElementById('diseaseBar').style.width = '0%';
+            document.getElementById('noDiseasePct').innerText = '0%';
+            document.getElementById('diseasePct').innerText = '0%';
+            document.getElementById('message').innerText = '';
+            currentResult = null;
+        }
+
+        function downloadTXT() {
+            if (!currentResult) {
+                alert('No result available to download');
+                return;
+            }
+
+            const featureLabels = {
+                'age': 'Age (years)',
+                'sex': 'Sex (0=Female, 1=Male)',
+                'cp': 'Chest Pain Type',
+                'trestbps': 'Resting BP (mm Hg)',
+                'chol': 'Cholesterol (mg/dl)',
+                'fbs': 'Fasting BS > 120 (0=No, 1=Yes)',
+                'restecg': 'Resting ECG',
+                'thalach': 'Max Heart Rate (bpm)',
+                'exang': 'Exercise Induced Angina (0=No, 1=Yes)',
+                'oldpeak': 'ST Depression',
+                'slope': 'ST Slope',
+                'ca': 'Major Vessels',
+                'thal': 'Thalassemia'
+            };
+
+            let content = `
+============================================
+    HEARTIFICIAL - HEART DISEASE RISK 
+         ASSESSMENT REPORT
+============================================
+
+PATIENT INFORMATION
+--------------------------------------------
+Name:              ${currentResult.user_name}
+Email:             ${currentResult.user_email}
+Assessment Date:   ${currentResult.date}
+
+============================================
+
+CLINICAL DATA
+--------------------------------------------
+`;
+
+            for (const [key, value] of Object.entries(currentResult.input_data)) {
+                content += `${featureLabels[key]}: ${value}\n`;
+            }
+
+            content += `
+============================================
+
+ASSESSMENT RESULTS
+--------------------------------------------
+Risk Level:              ${currentResult.risk_level}
+Low Risk Probability:    ${currentResult.probability.no_disease}%
+High Risk Probability:   ${currentResult.probability.disease}%
+
+============================================
+
+RECOMMENDATION
+--------------------------------------------
+${currentResult.message.replace(/⚠️/g, '').replace(/✅/g, '').trim()}
+
+============================================
+
+DISCLAIMER
+--------------------------------------------
+This is an AI-based prediction tool for 
+educational purposes only. This report should 
+not be used as a substitute for professional 
+medical advice, diagnosis, or treatment. 
+Always consult with qualified healthcare 
+professionals for medical advice.
+
+============================================
+© 2025 HEARTIFICIAL | Powered by ML
+Generated on: ${currentResult.date}
+============================================
+`;
+
+            const blob = new Blob([content], { type: 'text/plain' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `heart_assessment_${new Date().getTime()}.txt`;
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+            document.body.removeChild(a);
+        }
+
+        const features = {
+            age: { label: 'Age', type: 'number', min: 20, max: 100, unit: 'years' },
+            sex: { label: 'Sex', type: 'select', options: [['0','Female'],['1','Male']] },
+            cp: { label: 'Chest Pain Type', type: 'select', options: [['0','Typical Angina'],['1','Atypical Angina'],['2','Non-anginal Pain'],['3','Asymptomatic']] },
+            trestbps: { label: 'Resting BP', type: 'number', min: 80, max: 220, unit:'mm Hg' },
+            chol: { label: 'Cholesterol', type: 'number', min:100,max:600,unit:'mg/dl' },
+            fbs: { label:'Fasting BS>120', type:'select', options:[['0','No'],['1','Yes']] },
+            restecg: { label:'Resting ECG', type:'select', options:[['0','Normal'],['1','ST-T Abnormality'],['2','Left Ventricular Hypertrophy']] },
+            thalach: { label:'Max Heart Rate', type:'number', min:60, max:220, unit:'bpm' },
+            exang: { label:'Exercise Induced Angina', type:'select', options:[['0','No'],['1','Yes']] },
+            oldpeak: { label:'ST Depression', type:'number', min:0,max:7, step:0.1 },
+            slope: { label:'ST Slope', type:'select', options:[['0','Upsloping'],['1','Flat'],['2','Downsloping']] },
+            ca: { label:'Major Vessels', type:'select', options:[['0','0'],['1','1'],['2','2'],['3','3'],['4','4']] },
+            thal: { label:'Thalassemia', type:'select', options:[['0','Normal'],['1','Fixed Defect'],['2','Reversible Defect'],['3','Not Described']] }
+        };
+
+        const formGrid = document.getElementById('formGrid');
+        Object.keys(features).forEach((key,index)=>{
+            const feature = features[key];
+            const formGroup = document.createElement('div');
+            formGroup.className='form-group';
+            formGroup.style.animationDelay=(index*0.05)+'s';
+            let input;
+            if(feature.type==='number'){
+                input=`<input type="number" id="${key}" name="${key}" min="${feature.min}" max="${feature.max}" ${feature.step?`step="${feature.step}"`:''} required placeholder="Enter ${feature.label}">`;
+            } else {
+                input=`<select id="${key}" name="${key}" required>
+                    <option value="">Select ${feature.label}</option>
+                    ${feature.options.map(([val,text])=>`<option value="${val}">${text}</option>`).join('')}
+                </select>`;
+            }
+            formGroup.innerHTML=`<label for="${key}">${feature.label}${feature.unit?` (${feature.unit})`:''}</label>${input}`;
+            formGrid.appendChild(formGroup);
+        });
+
+        document.getElementById('predictionForm').addEventListener('submit', async function(e){
+            e.preventDefault();
+            document.getElementById('predictionForm').style.display='none';
+            document.getElementById('loading').style.display='block';
+            const data = {};
+            Object.keys(features).forEach(f=>{
+                data[f] = document.getElementById(f).value;
+            });
+            try {
+                const response = await fetch('/api/predict',{
+                    method:'POST',
+                    headers:{'Content-Type':'application/json'},
+                    body: JSON.stringify(data)
+                });
+                const result = await response.json();
+                currentResult = result;
+                
+                document.getElementById('loading').style.display='none';
+                document.getElementById('result').style.display='block';
+                
+                // Show centered pink title with emoji
+                if(result.risk_level.toLowerCase().includes('low')){
+                    document.getElementById('resultTitle').innerHTML = 'Low risk of heart disease 🙂';
+                } else {
+                    document.getElementById('resultTitle').innerHTML = 'High risk of heart disease 😟';
+                }
+
+                document.getElementById('noDiseasePct').innerText = `${result.probability.no_disease.toFixed(1)}%`;
+                document.getElementById('diseasePct').innerText = `${result.probability.disease.toFixed(1)}%`;
+                document.getElementById('noDiseaseBar').style.width = `${result.probability.no_disease}%`;
+                document.getElementById('diseaseBar').style.width = `${result.probability.disease}%`;
+                document.getElementById('message').innerText = result.message.replace(/✅/g,'').replace(/⚠️/g,'').trim();
+            } catch(err){
+                alert('Error: ' + err.message);
+                resetForm();
+            }
+        });
+    </script>
+</body>
+</html>
