@@ -1,6 +1,6 @@
 Flask==3.0.3
-pandas
-numpy
-joblib
-scikit-learn==1.4.2
 Werkzeug==3.0.3
+numpy==2.3.5
+pandas==2.3.3
+joblib==1.5.2
+scikit-learn==1.4.2
